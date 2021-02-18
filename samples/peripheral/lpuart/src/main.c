@@ -11,11 +11,17 @@
 LOG_MODULE_REGISTER(app);
 
 #define BUF_SIZE 64
+#if IS_ENABLED(CONFIG_NRF_SW_LPUART)
+#define DEV_NAME	"LPUART"
+#else
+#define DEV_NAME	"UART_1"
+#endif
+
 static K_MEM_SLAB_DEFINE(uart_slab, BUF_SIZE, 3, 4);
 
 static void uart_irq_handler(const struct device *dev, void *context)
 {
-	uint8_t buf[] = {1, 2, 3, 4, 5};
+	uint8_t buf[] = {6, 7, 8, 9, 10};
 
 	if (uart_irq_tx_ready(dev)) {
 		(void)uart_fifo_fill(dev, buf, sizeof(buf));
@@ -123,10 +129,10 @@ void main(void)
 
 	k_msleep(1000);
 
-	lpuart = device_get_binding("LPUART");
+	lpuart = device_get_binding(DEV_NAME);
 	__ASSERT(lpuart, "Failed to get the device");
 
-	if (IS_ENABLED(CONFIG_NRF_SW_LPUART_INT_DRIVEN)) {
+	if (IS_ENABLED(CONFIG_NRF_SW_LPUART_INT_DRIVEN) || !IS_ENABLED(CONFIG_UART_ASYNC_API)) {
 		interrupt_driven(lpuart);
 	} else {
 		async(lpuart);

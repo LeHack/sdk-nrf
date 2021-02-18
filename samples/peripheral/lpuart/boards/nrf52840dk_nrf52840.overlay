@@ -14,7 +14,3 @@
 		rdy-pin = <47>;
 	};
 };
-
-&uart0 {
-	status = "disabled";
-};
